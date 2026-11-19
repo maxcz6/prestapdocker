@@ -3,9 +3,10 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Banknote, Wallet, FileText, Shield, LogOut, X } from "lucide-react";
+import { LayoutDashboard, Users, Banknote, Wallet, FileText, Shield, LogOut, X, RotateCcw } from "lucide-react";
 import { useAuth } from "@/components/auth-context";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { api } from "@/lib/api-client";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -53,6 +54,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       await logout();
     } catch {
       // ignore
+    }
+  };
+
+  const handleResetDemo = () => {
+    if (typeof window !== "undefined" && window.confirm("¿Deseas restablecer todos los datos del sistema a los valores de prueba originales?")) {
+      api.resetDemoData();
+      window.location.reload();
     }
   };
 
@@ -176,6 +184,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
               <ThemeToggle />
             </div>
+            <button
+              onClick={handleResetDemo}
+              className="flex w-full items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-medium text-text-secondary hover:text-text-primary bg-bg-hover/60 hover:bg-bg-hover border border-border-glass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all duration-150 cursor-pointer"
+              title="Restablece la base de datos local en el navegador a los datos demo de Huancayo"
+            >
+              <RotateCcw className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              Restablecer Datos Demo
+            </button>
             <button
               onClick={handleLogout}
               className="flex w-full items-center justify-center gap-2.5 rounded-xl py-2.5 px-3 text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 transition-all duration-150 cursor-pointer"

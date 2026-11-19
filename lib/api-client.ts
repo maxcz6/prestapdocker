@@ -1,4 +1,5 @@
 import type { Cliente, Prestamo, Cuota, Pago } from "@/types/domain";
+import { localApi, storage } from "@/lib/storage";
 
 // ---------- Types ----------
 
@@ -95,128 +96,130 @@ export type UsuarioItem = {
   fecha_modificacion?: string;
 };
 
-// ---------- Core Fetch ----------
+// Pequeño retardo simulado para una experiencia fluida
+const delay = (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-
-  if (res.status === 401 && typeof window !== "undefined" && !url.includes("/api/auth/login") && !url.includes("/api/auth/me")) {
-    window.location.href = "/login?expired=true";
-    throw new Error("Sesión expirada. Redirigiendo al inicio de sesión...");
-  }
-
-  const json: ApiResponse<T> = await res.json();
-
-  if (!json.success) {
-    throw new Error((json as ApiError).error || "Error desconocido");
-  }
-
-  return (json as ApiSuccess<T>).data;
-}
-
-// ---------- Auth ----------
+// ---------- API Adapter (Almacenamiento Local en Navegador) ----------
 
 export const api = {
   auth: {
-    login: (usuario: string, password: string) =>
-      apiFetch<LoginResult>("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ usuario, password }),
-      }),
-    logout: () =>
-      apiFetch<unknown>("/api/auth/logout", { method: "POST" }),
-    me: () => apiFetch<SessionData>("/api/auth/me"),
+    login: async (usuario: string, password?: string) => {
+      await delay(60);
+      return localApi.auth.login(usuario, password);
+    },
+    logout: async () => {
+      await delay(40);
+      return localApi.auth.logout();
+    },
+    me: async () => {
+      await delay(30);
+      return localApi.auth.me();
+    },
   },
 
   clientes: {
-    list: () => apiFetch<Cliente[]>("/api/clientes"),
-    create: (data: Omit<Cliente, "id" | "id_cliente" | "fecha_creacion" | "fecha_modificacion">) =>
-      apiFetch<Cliente>("/api/clientes", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
-    update: (data: Partial<Cliente> & { id_cliente: string }) =>
-      apiFetch<Cliente>("/api/clientes", {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
-    delete: (id_cliente: string) =>
-      apiFetch<{ id_cliente: string; eliminado: boolean }>(
-        `/api/clientes?id_cliente=${encodeURIComponent(id_cliente)}`,
-        { method: "DELETE" }
-      ),
+    list: async () => {
+      await delay(50);
+      return localApi.clientes.list();
+    },
+    create: async (data: Omit<Cliente, "id" | "id_cliente" | "fecha_creacion" | "fecha_modificacion">) => {
+      await delay(80);
+      return localApi.clientes.create(data);
+    },
+    update: async (data: Partial<Cliente> & { id_cliente: string }) => {
+      await delay(80);
+      return localApi.clientes.update(data);
+    },
+    delete: async (id_cliente: string) => {
+      await delay(60);
+      return localApi.clientes.delete(id_cliente);
+    },
   },
 
   prestamos: {
-    list: () => apiFetch<PrestamoConDetalle[]>("/api/prestamos"),
-    getById: (id_prestamo: string) =>
-      apiFetch<PrestamoConDetalle[]>(`/api/prestamos?id_prestamo=${encodeURIComponent(id_prestamo)}`).then(
-        (list) => list[0] ?? null,
-      ),
-    create: (data: { id_cliente: string; monto: number; interes: number; dias: number; fecha_inicio: string }) =>
-      apiFetch<CrearPrestamoResult>("/api/prestamos", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
-    update: (data: { id_prestamo: string; estado: string }) =>
-      apiFetch<Prestamo>("/api/prestamos", {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
-    delete: (id_prestamo: string) =>
-      apiFetch<{ id_prestamo: string; cuotas_eliminadas: number; eliminado: boolean }>(
-        `/api/prestamos?id_prestamo=${encodeURIComponent(id_prestamo)}`,
-        { method: "DELETE" }
-      ),
+    list: async () => {
+      await delay(60);
+      return localApi.prestamos.list();
+    },
+    getById: async (id_prestamo: string) => {
+      await delay(40);
+      return localApi.prestamos.getById(id_prestamo);
+    },
+    create: async (data: { id_cliente: string; monto: number; interes: number; dias: number; fecha_inicio: string }) => {
+      await delay(90);
+      return localApi.prestamos.create(data);
+    },
+    update: async (data: { id_prestamo: string; estado: string }) => {
+      await delay(60);
+      return localApi.prestamos.update(data);
+    },
+    delete: async (id_prestamo: string) => {
+      await delay(60);
+      return localApi.prestamos.delete(id_prestamo);
+    },
   },
 
   cuotas: {
-    listByPrestamo: (id_prestamo: string) =>
-      apiFetch<Cuota[]>(`/api/cuotas?id_prestamo=${encodeURIComponent(id_prestamo)}`),
+    listByPrestamo: async (id_prestamo: string) => {
+      await delay(40);
+      return localApi.cuotas.listByPrestamo(id_prestamo);
+    },
   },
 
   pagos: {
-    list: () => apiFetch<PagoConDetalle[]>("/api/pagos"),
-    create: (data: { id_prestamo: string; id_cuota: string; monto_pagado: number; fecha_pago?: string; observacion?: string }) =>
-      apiFetch<CrearPagoResult>("/api/pagos", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
+    list: async () => {
+      await delay(60);
+      return localApi.pagos.list();
+    },
+    create: async (data: { id_prestamo: string; id_cuota: string; monto_pagado: number; fecha_pago?: string; observacion?: string }) => {
+      await delay(90);
+      return localApi.pagos.create(data);
+    },
   },
 
   dashboard: {
-    get: () => apiFetch<DashboardData>("/api/dashboard"),
+    get: async () => {
+      await delay(60);
+      return localApi.dashboard.get();
+    },
   },
 
   reportes: {
-    prestamos: () => apiFetch<ReportePrestamo[]>("/api/reportes/prestamos"),
-    pagos: () => apiFetch<ReportePago[]>("/api/reportes/pagos"),
-    morosos: () => apiFetch<ReporteMoroso[]>("/api/reportes/morosos"),
+    prestamos: async () => {
+      await delay(60);
+      return localApi.reportes.prestamos();
+    },
+    pagos: async () => {
+      await delay(60);
+      return localApi.reportes.pagos();
+    },
+    morosos: async () => {
+      await delay(60);
+      return localApi.reportes.morosos();
+    },
   },
 
   usuarios: {
-    list: () => apiFetch<UsuarioItem[]>("/api/usuarios"),
-    create: (data: { usuario: string; correo: string; password?: string; rol: string; estado?: string }) =>
-      apiFetch<UsuarioItem>("/api/usuarios", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
-    update: (data: { id_usuario: string; usuario?: string; correo?: string; password?: string; rol?: string; estado?: string }) =>
-      apiFetch<UsuarioItem>("/api/usuarios", {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
-    delete: (id_usuario: string) =>
-      apiFetch<{ id_usuario: string; eliminado: boolean }>(
-        `/api/usuarios?id_usuario=${encodeURIComponent(id_usuario)}`,
-        { method: "DELETE" },
-      ),
+    list: async () => {
+      await delay(50);
+      return localApi.usuarios.list();
+    },
+    create: async (data: { usuario: string; correo: string; password?: string; rol: string; estado?: string }) => {
+      await delay(70);
+      return localApi.usuarios.create(data);
+    },
+    update: async (data: { id_usuario: string; usuario?: string; correo?: string; password?: string; rol?: string; estado?: string }) => {
+      await delay(70);
+      return localApi.usuarios.update(data);
+    },
+    delete: async (id_usuario: string) => {
+      await delay(60);
+      return localApi.usuarios.delete(id_usuario);
+    },
+  },
+
+  // Utilidad para restablecer los datos de demostración
+  resetDemoData: () => {
+    storage.resetToDemo();
   },
 };

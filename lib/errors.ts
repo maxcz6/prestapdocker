@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 export class ApiError extends Error {
   status: number;
   details?: unknown;
@@ -13,12 +11,12 @@ export class ApiError extends Error {
 }
 
 export function jsonOk<T>(data: T, status = 200) {
-  return NextResponse.json({ success: true, data }, { status });
+  return Response.json({ success: true, data }, { status });
 }
 
 export function jsonError(error: unknown) {
   if (error instanceof ApiError) {
-    return NextResponse.json(
+    return Response.json(
       {
         success: false,
         error: error.message,
@@ -30,7 +28,7 @@ export function jsonError(error: unknown) {
 
   console.error(error);
 
-  return NextResponse.json(
+  return Response.json(
     {
       success: false,
       error: "Error interno del servidor",
@@ -38,4 +36,3 @@ export function jsonError(error: unknown) {
     { status: 500 },
   );
 }
-

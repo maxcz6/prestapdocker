@@ -1,11 +1,15 @@
-import { randomBytes } from "crypto";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function generarId(prefix: string, ids?: string[]) {
-  // A8: Generar identificadores únicos con componente temporal Base36 y entropía aleatoria criptográfica
+// Generador de identificadores universales (navegador y servidor)
+export function generarId(prefix: string, _ids?: string[]): string {
   const timePart = Date.now().toString(36).toUpperCase();
-  const randPart = randomBytes(3).toString("hex").toUpperCase();
+  let randPart = "";
+
+  if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
+    const bytes = new Uint8Array(3);
+    window.crypto.getRandomValues(bytes);
+    randPart = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+  } else {
+    randPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+
   return `${prefix}${timePart}${randPart}`;
 }
-
-
