@@ -1,0 +1,76 @@
+services:
+  app-db:
+    image: postgres:16-alpine
+    container_name: app-db
+    env_file:
+      - .env.staging
+    environment:
+      POSTGRES_DB: bd_proyecto_staging
+      POSTGRES_USER: staging_user
+    volumes:
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - prestap_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U staging_user -d bd_proyecto_staging" ]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - prestap-network
+
+  prestap-staging:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prestap-staging
+    expose:
+      - "3000"
+    depends_on:
+      app-db:
+        condition: service_healthy
+    env_file:
+      - .env.staging
+    environment:
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NODE_ENV=production
+      - APP_ENV=staging
+      - DB_HOST=app-db
+      - DB_PORT=5432
+      - DB_DATABASE=bd_proyecto_staging
+      - DB_USERNAME=staging_user
+    healthcheck:
+      test: [ "CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - prestap-network
+
+  proxy:
+    image: caddy:2-alpine
+    container_name: prestap-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      prestap-staging:
+        condition: service_healthy
+    networks:
+      - prestap-network
+
+volumes:
+  prestap_pgdata:
+  caddy_data:
+  caddy_config:
+
+networks:
+  prestap-network:
+    driver: bridge

@@ -1,0 +1,50 @@
+{
+  "usuarios": [
+    {
+      "id_usuario": "U_ADMIN01",
+      "usuario": "admin01",
+      "correo": "admin01@prestap.com",
+      "password_hash": "95760883d71149cb92e39cccbe28563a05b965fb750a3714890f62a4996d9aeda30299c9f10f5c638e72888240eba4ae944537f7564f11a1fd3a846598e5a666",
+      "password_salt": "88d806e694a0ef412d6f299fd0d839df",
+      "rol": "ADMIN",
+      "estado": "ACTIVO",
+      "fecha_creacion": "2026-09-14T00:00:00.000Z",
+      "fecha_modificacion": "2026-09-14T00:00:00.000Z"
+    }
+  ],
+  "clientes": [
+    {
+      "id_cliente": "CF23EC578",
+      "dni": "81151922",
+      "nombres_apellidos": "María Elena Quispe Rojas",
+      "nombre_negocio": "Abarrotes María",
+      "celular": "987654321",
+      "direccion_puesto": "Mercado Central Puesto 12",
+      "fecha_creacion": "2026-09-14T00:00:00.000Z",
+      "fecha_modificacion": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id_cliente": "C4DED2F97",
+      "dni": "82151922",
+      "nombres_apellidos": "José Luis Ramos Paredes",
+      "nombre_negocio": "Frutería Don José",
+      "celular": "987654322",
+      "direccion_puesto": "Mercado Central Puesto 45",
+      "fecha_creacion": "2026-09-14T00:00:00.000Z",
+      "fecha_modificacion": "2026-09-14T00:00:00.000Z"
+    },
+    {
+      "id_cliente": "CB4ED5C42",
+      "dni": "83151922",
+      "nombres_apellidos": "Ana Cecilia Torres Huamán",
+      "nombre_negocio": "Bazar Anita",
+      "celular": "987654323",
+      "direccion_puesto": "Av. Comercio 123",
+      "fecha_creacion": "2026-09-14T00:00:00.000Z",
+      "fecha_modificacion": "2026-09-14T00:00:00.000Z"
+    }
+  ],
+  "prestamos": [],
+  "cuotas": [],
+  "pagos": []
+}

@@ -1,0 +1,61 @@
+=============================================================================
+EVIDENCIA DE TERMINAL 1: ESTADO DE CONTENEDORES (docker compose ps)
+=============================================================================
+NAME              IMAGE                           COMMAND                  SERVICE           CREATED         STATUS                   PORTS
+app-db            postgres:16-alpine              "docker-entrypoint.sÔÇª"   app-db            6 minutes ago   Up 6 minutes (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+prestap-staging   prestapdocker-prestap-staging   "docker-entrypoint.sÔÇª"   prestap-staging   6 minutes ago   Up 6 minutes (healthy)   0.0.0.0:8080->3000/tcp, [::]:8080->3000/tcp
+
+=============================================================================
+EVIDENCIA DE TERMINAL 2: DIAGNÓSTICO DE CONEXIÓN LOCAL (curl /api/health)
+=============================================================================
+{"success":true,"data":{"ok":true,"db":"postgres-local (app-db)","local":true}}
+
+=============================================================================
+EVIDENCIA DE TERMINAL 3: TABLA DE USUARIOS EN BASE DE DATOS LOCAL (app-db)
+=============================================================================
+ id_usuario | usuario |       correo        |  rol  | estado 
+------------+---------+---------------------+-------+--------
+ U_ADMIN01  | admin01 | admin01@prestap.com | ADMIN | ACTIVO
+(1 row)
+
+
+=============================================================================
+EVIDENCIA DE TERMINAL 4: PERSISTENCIA DEL CASO DE USO EN POSTGRESQL (prestamos)
+=============================================================================
+   id_prestamo   | id_cliente | monto | total_pagar | dias | estado 
+-----------------+------------+-------+-------------+------+--------
+ PMU1NO2VK10FA6D | CF23EC578  |  2000 |        2300 |   24 | ACTIVO
+ PMU1OEB2HB27124 | CF23EC578  |  3000 |        3300 |   30 | ACTIVO
+(2 rows)
+
+
+=============================================================================
+EVIDENCIA DE TERMINAL 5: CRONOGRAMA DE CUOTAS AMORTIZADAS EN BD LOCAL (cuotas)
+=============================================================================
+    id_cuota     |   id_prestamo   | numero_cuota | fecha_vencimiento | monto |  estado   
+-----------------+-----------------+--------------+-------------------+-------+-----------
+ QMU1NO2VKB5F1E9 | PMU1NO2VK10FA6D |            1 | 2026-09-15        | 95.83 | PENDIENTE
+ QMU1NO2VKFC601C | PMU1NO2VK10FA6D |            2 | 2026-09-16        | 95.83 | PENDIENTE
+ QMU1NO2VK321940 | PMU1NO2VK10FA6D |            3 | 2026-09-17        | 95.83 | PENDIENTE
+ QMU1NO2VKC12CD3 | PMU1NO2VK10FA6D |            4 | 2026-09-18        | 95.83 | PENDIENTE
+ QMU1NO2VLBDE141 | PMU1NO2VK10FA6D |            5 | 2026-09-19        | 95.83 | PENDIENTE
+(5 rows)
+
+
+=============================================================================
+EVIDENCIA DE AISLAMIENTO: COMPARACIÓN STAGING VS LOCAL
+=============================================================================
+1. CONSULTA EN STAGING (bd_proyecto_staging dentro del contenedor app-db):
+Comando: docker exec -t app-db psql -U staging_user -d bd_proyecto_staging -c "SELECT id_usuario, usuario, correo, rol, estado FROM users;"
+Salida:
+   id_usuario    | usuario |       correo        |  rol  | estado 
+-----------------+---------+---------------------+-------+--------
+ U_ADMIN01       | admin01 | admin01@prestap.com | ADMIN | ACTIVO
+ UMU1OT8M17A33CE | maxx    | admin01@sam.edu.pe  | ADMIN | ACTIVO
+(2 rows)
+
+2. CONSULTA EN ENTORNO LOCAL (data/local_db.json):
+El usuario 'maxx' NO existe en el entorno local (solo existe el usuario base inicial).
+Los préstamos creados en Staging tampoco existen en el entorno local.
+
+DEMOSTRACIÓN: La fila existe exclusivamente en la base de datos bd_proyecto_staging dentro del contenedor Docker y NO en el entorno local.

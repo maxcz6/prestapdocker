@@ -1,0 +1,63 @@
+{
+  "fecha": "2026-11-18T22:11:51.040Z",
+  "entorno": {
+    "baseURL": "https://localhost",
+    "navegador": "Chromium (Playwright)",
+    "ejecucion": "Docker Compose local; HTTPS por Caddy con certificado de CA interna"
+  },
+  "capturas": [
+    "01-login.png",
+    "02-dashboard.png",
+    "03-prestamos.png",
+    "04-matriz-calidad.png"
+  ],
+  "pruebas": {
+    "seguridadAnonimo": {
+      "esperado": 401,
+      "obtenido": 401
+    },
+    "seguridadCobrador": {
+      "esperado": 403,
+      "obtenido": 403,
+      "rol": "COBRADOR"
+    },
+    "limpiezaUsuarioTemporal": "completada; sin datos de prueba persistentes",
+    "seguridadAdmin": {
+      "esperado": 400,
+      "obtenido": 400,
+      "nota": "Pasó autorización ADMIN y llegó a la validación del préstamo"
+    },
+    "fiabilidadValidacion": {
+      "esperado": 400,
+      "obtenido": 400,
+      "mensaje": "RB06: El monto debe estar entre S/ 10 y S/ 50,000",
+      "sinEscritura": true
+    },
+    "rendimiento": {
+      "endpoint": "GET /api/prestamos (sesión ADMIN)",
+      "solicitudes": 50,
+      "errores": 0,
+      "promedioMs": 5.11,
+      "p50Ms": 4.45,
+      "p95Ms": 8.61,
+      "maximoMs": 10.45,
+      "criterio": "50 solicitudes, HTTP 200, 0 errores, P95 <= 500 ms",
+      "cumple": true
+    },
+    "salud": {
+      "esperado": "HTTP 200, ok=true, PostgreSQL local",
+      "obtenido": "HTTP 200, ok=true, db=postgres-local (app-db)"
+    },
+    "cabecerasSeguridad": {
+      "strict-transport-security": true,
+      "x-content-type-options": true,
+      "x-frame-options": true,
+      "referrer-policy": true,
+      "permissions-policy": true
+    },
+    "mantenibilidad": {
+      "archivo": "tests/business.test.ts",
+      "pruebasAprobadas": 13
+    }
+  }
+}
