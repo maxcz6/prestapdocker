@@ -13,7 +13,7 @@ describe("Almacenamiento Local en Navegador (v1 - Frontend Only)", () => {
 
     expect(clientes.length).toBeGreaterThanOrEqual(4);
     expect(prestamos.length).toBeGreaterThanOrEqual(3);
-    expect(usuarios.some((u) => u.usuario === "admin")).toBe(true);
+    expect(usuarios.some((u) => u.usuario === "admin01")).toBe(true);
   });
 
   it("2. Realiza CRUD completo de Clientes", async () => {
@@ -98,13 +98,19 @@ describe("Almacenamiento Local en Navegador (v1 - Frontend Only)", () => {
   });
 
   it("6. Autenticación y control de sesión en navegador", async () => {
-    const login = await localApi.auth.login("admin", "admin");
-    expect(login.usuario).toBe("admin");
+    // Debe rechazar contraseña incorrecta
+    await expect(localApi.auth.login("admin01", "password_incorrecta")).rejects.toThrow(
+      "Usuario o contraseña incorrectos"
+    );
+
+    // Debe autenticar con usuario admin01 y contraseña admin01
+    const login = await localApi.auth.login("admin01", "admin01");
+    expect(login.usuario).toBe("admin01");
     expect(login.rol).toBe("ADMIN");
 
     const session = await localApi.auth.me();
     expect(session.authenticated).toBe(true);
-    expect(session.session?.usuario).toBe("admin");
+    expect(session.session?.usuario).toBe("admin01");
 
     await localApi.auth.logout();
     const sessionPostLogout = await localApi.auth.me();

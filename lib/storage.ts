@@ -49,11 +49,11 @@ function generateInitialData() {
     {
       id: "USR-001",
       id_usuario: "USR-001",
-      usuario: "admin",
+      usuario: "admin01",
       correo: "admin@prestap.com",
-      password: "admin",
-      password_hash: "hash_admin",
-      password_salt: "salt_admin",
+      password: "admin01",
+      password_hash: "hash_admin01",
+      password_salt: "salt_admin01",
       rol: "ADMIN",
       estado: "ACTIVO",
       fecha_creacion: formatDate(addDays(now, -60)),
@@ -64,7 +64,7 @@ function generateInitialData() {
       id_usuario: "USR-002",
       usuario: "supervisor",
       correo: "supervisor@prestap.com",
-      password: "supervisor",
+      password: "supervisor123",
       password_hash: "hash_super",
       password_salt: "salt_super",
       rol: "SUPERVISOR",
@@ -77,7 +77,7 @@ function generateInitialData() {
       id_usuario: "USR-003",
       usuario: "operador",
       correo: "operador@prestap.com",
-      password: "operador",
+      password: "operador123",
       password_hash: "hash_oper",
       password_salt: "salt_oper",
       rol: "OPERADOR",
@@ -90,7 +90,7 @@ function generateInitialData() {
       id_usuario: "USR-004",
       usuario: "cobrador",
       correo: "cobrador@prestap.com",
-      password: "cobrador",
+      password: "cobrador123",
       password_hash: "hash_cobr",
       password_salt: "salt_cobr",
       rol: "COBRADOR",
@@ -304,9 +304,12 @@ class BrowserStorage {
 
   // Inicializa los datos en la primera visita
   public init(): void {
-    const initialized = this.get<boolean>("prestap_v1_initialized", false);
-    if (!initialized || !this.getClientes().length) {
+    const initialized = this.get<boolean>("prestap_v1_initialized_prod", false);
+    const users = this.getUsuarios();
+    const hasAdmin01 = users.some((u) => u.usuario === "admin01");
+    if (!initialized || !this.getClientes().length || !hasAdmin01) {
       this.resetToDemo();
+      this.set("prestap_v1_initialized_prod", true);
     }
   }
 
@@ -317,7 +320,7 @@ class BrowserStorage {
     this.set(KEYS.PRESTAMOS, seed.prestamos);
     this.set(KEYS.CUOTAS, seed.cuotas);
     this.set(KEYS.PAGOS, seed.pagos);
-    this.set("prestap_v1_initialized", true);
+    this.set("prestap_v1_initialized_prod", true);
   }
 
   // Clientes
@@ -388,7 +391,7 @@ if (typeof window !== "undefined") {
 export const localApi = {
   // Autenticación
   auth: {
-    async login(usuario: string, _password?: string): Promise<LoginResult> {
+    async login(usuario: string, password?: string): Promise<LoginResult> {
       storage.init();
       const usuarios = storage.getUsuarios();
       const uNormalized = usuario.trim().toLowerCase();
@@ -400,6 +403,10 @@ export const localApi = {
       );
 
       if (!user) {
+        throw new Error("Usuario o contraseña incorrectos");
+      }
+
+      if (!password || password.trim() !== user.password) {
         throw new Error("Usuario o contraseña incorrectos");
       }
 

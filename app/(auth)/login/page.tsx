@@ -64,9 +64,9 @@ function LoginForm() {
           className="mx-auto mb-4 h-16 w-16 rounded-2xl shadow-xl shadow-primary/25"
         />
         <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Prestap</h1>
-        <p className="text-sm text-text-secondary mt-1 font-medium">Gestión Inteligente de Microcréditos (Frontend v1)</p>
-        <span className="inline-block mt-2 text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-          Modo LocalStorage para Vercel
+        <p className="text-sm text-text-secondary mt-1 font-medium">Gestión Inteligente de Microcréditos y Cobranzas</p>
+        <span className="inline-block mt-2 text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          v1.0 • Producción Web
         </span>
       </div>
 
@@ -105,7 +105,7 @@ function LoginForm() {
             maxLength={50}
             value={usuario}
             onChange={(e) => setUsuario(e.target.value)}
-            placeholder="Ej. admin o admin@prestap.com"
+            placeholder="admin01 o correo corporativo"
             disabled={loading}
           />
 
@@ -141,15 +141,15 @@ function LoginForm() {
             <button
               type="button"
               disabled={loading}
-              onClick={() => handleQuickLogin("admin", "admin")}
+              onClick={() => handleQuickLogin("admin01", "admin01")}
               className="text-xs py-2 px-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-semibold transition-all border border-primary/20 text-center cursor-pointer"
             >
-              👑 Administrador
+              👑 Administrador (admin01)
             </button>
             <button
               type="button"
               disabled={loading}
-              onClick={() => handleQuickLogin("supervisor", "supervisor")}
+              onClick={() => handleQuickLogin("supervisor", "supervisor123")}
               className="text-xs py-2 px-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-semibold transition-all border border-blue-500/20 text-center cursor-pointer"
             >
               📊 Supervisor
@@ -157,7 +157,7 @@ function LoginForm() {
             <button
               type="button"
               disabled={loading}
-              onClick={() => handleQuickLogin("operador", "operador")}
+              onClick={() => handleQuickLogin("operador", "operador123")}
               className="text-xs py-2 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold transition-all border border-emerald-500/20 text-center cursor-pointer"
             >
               💼 Operador
@@ -165,7 +165,7 @@ function LoginForm() {
             <button
               type="button"
               disabled={loading}
-              onClick={() => handleQuickLogin("cobrador", "cobrador")}
+              onClick={() => handleQuickLogin("cobrador", "cobrador123")}
               className="text-xs py-2 px-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-semibold transition-all border border-amber-500/20 text-center cursor-pointer"
             >
               🛵 Cobrador en Ruta
